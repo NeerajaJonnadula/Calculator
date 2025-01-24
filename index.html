@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web-Based Calculator</title>
+    <link rel="icon" href="./imgs/icon/cal.jpeg"type="image/x-icon">
+    <style>
+        :root {
+            --bg-color-light: #f9f9f9;
+            --text-color-light: #000;
+            --bg-color-dark: #333;
+            --text-color-dark: black;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color-light);
+            color: var(--text-color-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            transition: all 0.3s;
+            background-image: url(./imgs/icon/cal_bg.jpg) ;
+            background-size: 100%;
+        }
+
+        .calculator {
+            width: 300px;
+            border: 2px solid #3b3b3b;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 20px 20px 1px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-toggle {
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .screen {
+            width: 74%;
+            height: 50px;
+            background: #cccbcb;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: right;
+            font-size: 1.5rem;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .button {
+            padding: 10px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 4px;
+            background: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .clr{
+            background: #022142;
+        }
+
+        .tri{
+            background: #02376f;
+        }
+
+        .num{
+            background: #5b9ce1;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+
+        .button:hover {
+            background: #0056b3;
+        }
+
+        .history {
+            margin-top: 15px;
+            height: 100px;
+            overflow-y: auto;
+            background: #cccbcb;
+            border: 1px solid #ccc;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .dark {
+            background-color: var(--bg-color-dark);
+            color: var(--text-color-dark);
+        }
+
+        .dark .screen,
+        .dark .history {
+            background: #817d7d;
+            color: #fff;
+            border-color: #555;
+        }
+
+        .dark .button {
+            background: #baafaf;
+            color: #000;
+        }
+
+        .dark .button:hover {
+            background: #777;
+        }
+        .dark #nm{
+            background: rgb(103, 99, 99);
+        }
+        .bt{
+            width: 23%;
+            height: 48px;
+            padding-left: 10px;
+            /* padding: 0px 10px; */
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="calculator">
+        <div class="theme-toggle">
+            <!-- <span>Light Mode</span> -->
+            <label>
+                <input type="checkbox" id="theme-switch"> Dark Mode
+            </label>
+        </div>
+        <input type="text" class="screen" id="screen" readonly>
+        <button class="button bt" onclick="backspace()">&#x2190;</button>
+        <div class="buttons">
+            <button class="button clr" id="nm" onclick="clearScreen()">C</button>
+            <button class="button" onclick="pressKey(')')">)</button>
+            <button class="button" onclick="pressKey('/')">&divide;</button>
+            <button class="button" onclick="pressKey('sqrt')">√</button>
+
+            <button class="button num" onclick="pressKey('7')">7</button>
+            <button class="button num" onclick="pressKey('8')">8</button>
+            <button class="button num" onclick="pressKey('9')">9</button>
+            <button class="button" onclick="pressKey('*')">*</button>
+
+            <button class="button num" onclick="pressKey('4')">4</button>
+            <button class="button num" onclick="pressKey('5')">5</button>
+            <button class="button num" onclick="pressKey('6')">6</button>
+            <button class="button" onclick="pressKey('-')">-</button>
+
+            <button class="button num" onclick="pressKey('1')">1</button>
+            <button class="button num" onclick="pressKey('2')">2</button>
+            <button class="button num" onclick="pressKey('3')">3</button>
+            <button class="button" onclick="pressKey('+')">+</button>
+
+            <button class="button" onclick="pressKey('**')">^</button>
+            <button class="button num" onclick="pressKey('0')">0</button>
+            <button class="button" onclick="pressKey('.')">.</button>
+            <button class="button clr" id="nm" onclick="calculate()">=</button>
+            
+            <button class="button tri" onclick="pressKey('sin')">sin</button>
+            <button class="button tri" onclick="pressKey('cos')">cos</button>
+            <button class="button tri" onclick="pressKey('tan')">tan</button>
+            <button class="button tri" onclick="pressKey('log')">log</button>
+        </div>
+        <div class="history" id="history"></div>
+    </div>
+    <script>
+        let memory = null;
+        let history = [];
+    
+        document.getElementById('theme-switch').addEventListener('change', (e) => {
+            document.body.classList.toggle('dark', e.target.checked);
+        });
+    
+        function pressKey(key) {
+            const screen = document.getElementById('screen');
+            if (key === 'sqrt') {
+                screen.value += 'sqrt(';
+            } else if (key === '^') {
+                screen.value += '^';
+            } else if (key === 'log') {
+                screen.value += 'log(';
+            } else if (['sin', 'cos', 'tan'].includes(key)) {
+                screen.value += `${key}(`;
+            } else {
+                screen.value += key;
+            }
+        }
+    
+        function calculate() {
+            const screen = document.getElementById('screen');
+            let expression = screen.value;
+            try {
+                // Replace custom functions and operators with JavaScript equivalents
+                expression = expression
+                    .replace(/sqrt\((.*?)\)/g, 'Math.sqrt($1)')
+                    .replace(/log\((.*?)\)/g, 'Math.log10($1)')
+                    .replace(/sin\((.*?)\)/g, 'Math.sin(($1) * Math.PI / 180)')
+                    .replace(/cos\((.*?)\)/g, 'Math.cos(($1) * Math.PI / 180)')
+                    .replace(/tan\((.*?)\)/g, 'Math.tan(($1) * Math.PI / 180)')
+                    .replace(/\^/g, ''); // Replace ^ with ** for power
+    
+                // Check for undefined cases in the expression
+                if (/tan\((.*?)\)/.test(expression)) {
+                    const match = expression.match(/tan\((.*?)\)/);
+                    const angle = parseFloat(match[1]);
+                    if ((angle % 180 === 90)) {
+                        throw new Error('Tan(90 + n*180) is undefined');
+                    }
+                }
+    
+                // Evaluate the expression safely
+                let result = eval(expression);
+                
+                // Round the result to avoid floating-point issues
+                result = Math.round(result * 1000000000) / 1000000000; // Round to 9 decimal places
+    
+                if (!isFinite(result)) throw new Error('Invalid calculation');
+                memory = result;
+    
+                // Add to history and display result
+                history.push(`${screen.value} = ${result}`);
+                updateHistory();
+                screen.value = result;
+            } catch (e) {
+                alert(e.message || 'Error in calculation');
+                screen.value = '';
+            }
+        }
+    
+        function backspace() {
+            const screen = document.getElementById('screen');
+            screen.value = screen.value.slice(0, -1);
+        }
+
+        function clearScreen() {
+            document.getElementById('screen').value = '';
+        }
+    
+        function recallMemory() {
+            const screen = document.getElementById('screen');
+            if (memory !== null) {
+                screen.value += memory;
+            }
+        }
+    
+        function updateHistory() {
+            const historyDiv = document.getElementById('history');
+            historyDiv.innerHTML = history.join('<br>');
+        }
+    </script>
+     
+</body>
+</html>
